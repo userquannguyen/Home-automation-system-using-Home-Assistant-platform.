@@ -1,0 +1,263 @@
+esphome:
+  name: my-mini-esphome
+esp32:
+  board: nodemcu-32s
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "RPYgQchDLLkUeQ7/Bw+Z58v4nD0uOfJjFzGrVEr1MMQ="
+
+ota:
+  password: "8fe68fd3dc141298234f6520d871f47c"
+
+wifi:
+  ssid: 311 D6
+  password: 33555n@m
+  #manual_ip:
+   # static_ip: 172.20.10.100
+   # gateway: 172.20.10.1
+   # subnet: 255.255.255.240
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "My-Mini-Esphome Fallback Hotspot"
+    password: "RW1o4siSQEPc"
+
+captive_portal:
+
+i2c: 
+  - id: i2c_a
+    sda: 21
+    scl: 22
+    scan: true
+
+sensor:
+  # DO AM CUA CAM BIEN DO AM DIEN DUNG
+  # https://esphome.io/components/sensor/
+  # https://esphome.io/components/sensor/adc
+
+  - platform: adc
+    pin: 36 #GPIO36
+    id: "soil_moisture_1"
+    name: "MQ SoilM Sensor 1"
+    icon: "mdi:water-percent"
+    update_interval: 2s
+    unit_of_measurement: "%"
+    attenuation: 11db
+    filters:
+    # 2.5 -> 0.00  Độ ẩm Min
+    # 1.1 -> 100.00 # Độ ẩm Max
+    - calibrate_linear:
+        - 2.50 -> 0.00
+        - 1.10 -> 100.00
+    - lambda: |-
+        if (x > 100)          return 100;
+        else if ( x < 0)      return 0;
+        else                  return (x);
+    accuracy_decimals: 0
+
+  - platform: adc
+    pin: 39 #GPIO39
+    id: "soil_moisture_2"
+    name: "MQ SoilM Sensor 2"
+    icon: "mdi:water-percent"
+    device_class: humidity
+    update_interval: 2s
+    unit_of_measurement: "%"
+    attenuation: 11db
+    filters:
+    # 2.39 -> 0.00  Độ ẩm Min
+    # 1.1 -> 100.00 # Độ ẩm Max
+    - calibrate_linear:
+        - 2.39 -> 0.00
+        - 1.10 -> 100.00
+    - lambda: |-
+        if (x > 100)          return 100;
+        else if ( x < 0)      return 0;
+        else                  return (x);
+    accuracy_decimals: 0  
+
+  - platform: adc
+    pin: 34 #GPIO34
+    id: "soil_moisture_3"
+    name: "MQ SoilM Sensor 3"
+    icon: "mdi:water-percent"
+    device_class: humidity
+    update_interval: 2s
+    unit_of_measurement: "%"
+    attenuation: 11db
+    filters:
+    # 2.94 -> 0.00  Độ ẩm Min
+    # 1.49 -> 100.00 # Độ ẩm Max
+    - calibrate_linear:
+        - 2.94 -> 0.00
+        - 1.49 -> 100.00
+    - lambda: |-
+        if (x > 100)          return 100;
+        else if ( x < 0)      return 0;
+        else                  return (x);
+    accuracy_decimals: 0
+
+  - platform: adc
+    pin: 35 #GPIO34
+    id: "soil_moisture_4"
+    name: "MQ SoilM Sensor 4"
+    icon: "mdi:water-percent"
+    device_class: humidity
+    update_interval: 2s
+    unit_of_measurement: "%"
+    attenuation: 11db
+    filters:
+    # 2.86 -> 0.00  Độ ẩm Min
+    # 1.45 -> 100.00 # Độ ẩm Max
+    - calibrate_linear:
+        - 2.86 -> 0.00
+        - 1.45 -> 100.00
+    - lambda: |-
+        if (x > 100)          return 100;
+        else if ( x < 0)      return 0;
+        else                  return (x);
+    accuracy_decimals: 0
+#Wifi signal_strength
+  - platform: wifi_signal
+    name: "MQ_Wifi_signal"
+    id: "wsn"
+    icon: "mdi:wifi-strength-4"
+    update_interval: 9s
+#BH1750
+  - platform: bh1750
+    i2c_id: i2c_a
+    name: "MQ Illuminance"
+    address: 0x23 #mac dinh neu pin dung dien tro keo xuong ( chan address cua bh1750)
+    #bh1750 doc du lieu bang cachc chuyen ma nhi phan 16 bit sang decimal
+    update_interval: 3600s
+
+#CAI DAT DO AM MONG MUON, van nam trong muc "sensor:" https://esphome.io/components/sensor/homeassistant.html
+  - platform: homeassistant
+    name: "Desired Moisture Level 1"
+    id: "mois_desired_value_1"
+    internal: true
+    entity_id: input_number.moisture_level_pump_1
+
+  - platform: homeassistant
+    name: "Desired Moisture Level 2"
+    id: "mois_desired_value_2"
+    internal: true
+    entity_id: input_number.moisture_level_pump_2
+
+  - platform: homeassistant
+    name: "Desired Moisture Level 3"
+    id: "mois_desired_value_3"
+    internal: true
+    entity_id: input_number.moisture_level_pump_3
+
+  - platform: homeassistant
+    name: "Desired Moisture Level 4"
+    id: "mois_desired_value_4"
+    internal: true
+    entity_id: input_number.moisture_level_pump_4
+
+#Automate pump bang code, https://esphome.io/guides/automations.html?highlight=platform+template#templates-lambdas
+  - platform: template 
+    name: "Soil Comparison 1"
+    internal: true
+    update_interval: 2s #tuoi 2s xong check do am roi tuoi tiep
+    lambda: |-
+      if (id(soil_moisture_1).state < id(mois_desired_value_1).state)
+      {
+        id(pump1).turn_on();
+      }
+      else
+      {
+        id(pump1).turn_off();
+        return {};
+      }
+  - platform: template 
+    name: "Soil Comparison 2"
+    internal: true
+    update_interval: 2s
+    lambda: |-
+      if (id(soil_moisture_2).state < id(mois_desired_value_2).state)
+      {
+        id(pump2).turn_on();
+      }
+      else
+      {
+        id(pump2).turn_off();
+        return {};
+      }
+  - platform: template 
+    name: "Soil Comparison 3"
+    internal: true
+    update_interval: 2s
+    lambda: |-
+      if (id(soil_moisture_3).state < id(mois_desired_value_3).state)
+      {
+        id(pump3).turn_on();
+      }
+      else
+      {
+        id(pump3).turn_off();
+        return {};
+      }
+  - platform: template 
+    name: "Soil Comparison 4"
+    internal: true
+    update_interval: 2s
+    lambda: |-
+      if (id(soil_moisture_4).state < id(mois_desired_value_4).state)
+      {
+        id(pump4).turn_on();
+      }
+      else
+      {
+        id(pump4).turn_off();
+        return {};
+      }
+
+#SWITCH CONTROL
+switch:
+#may bom 1
+  - platform: gpio
+    pin: 
+      number: 15
+      inverted: true
+    name: "MQ Pump 1"
+    id: "pump1"
+    icon: "mdi:water-pump"
+    restore_mode: ALWAYS_OFF
+ #may bom 2
+  - platform: gpio
+    pin: 
+      number: 2
+      inverted: true
+    name: "MQ Pump 2"
+    id: "pump2"
+    icon: "mdi:water-pump"
+    restore_mode: ALWAYS_OFF
+
+  - platform: gpio
+    pin: 
+      number: 4
+      inverted: true
+    name: "MQ Pump 3"
+    id: "pump3"
+    icon: "mdi:water-pump"
+    restore_mode: ALWAYS_OFF
+
+  - platform: gpio
+    pin: 
+      number: 16
+      inverted: true
+    name: "MQ Pump 4"
+    id: "pump4"
+    icon: "mdi:water-pump"
+    restore_mode: ALWAYS_OFF
+
+
+
+

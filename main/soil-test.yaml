@@ -1,0 +1,73 @@
+esphome:
+  name: soil-test
+
+esp32:
+  board: nodemcu-32s
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "DLXP8hpukbR6a7gcxOR/gGEx1A+20aKOt/cuJ43Xq74="
+
+ota:
+  password: "a3d9b689cbaece9454a0041ff26776e3"
+
+wifi:
+  ssid: 311 D6
+  password: 33555n@m
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Soil-Test Fallback Hotspot"
+    password: "uc2Lnd6rZwWN"
+
+captive_portal:
+    
+i2c: 
+  - id: i2c_a
+    sda: 21
+    scl: 22
+    scan: true
+
+sensor:
+  # DO AM CUA CAM BIEN DO AM DIEN DUNG
+  # https://esphome.io/components/sensor/
+  # https://esphome.io/components/sensor/adc
+
+  - platform: adc
+    pin: 36 #GPIO36
+    id: "soil_moisture_1"
+    name: "MQ SoilM Sensor 1"
+    icon: "mdi:water-percent"
+    attenuation: 11db
+    update_interval: 2s
+    accuracy_decimals: 0
+
+  - platform: adc
+    pin: 39 #GPIO36
+    id: "soil_moisture_2"
+    name: "MQ SoilM Sensor 2"
+    icon: "mdi:water-percent"
+    attenuation: 11db
+    update_interval: 2s
+    accuracy_decimals: 0
+    
+  - platform: adc
+    pin: 34 #GPIO36
+    id: "soil_moisture_3"
+    name: "MQ SoilM Sensor 3"
+    icon: "mdi:water-percent"
+    attenuation: 11db
+    update_interval: 2s
+    accuracy_decimals: 0
+
+  - platform: adc
+    pin: 35 #GPIO36
+    id: "soil_moisture_4"
+    name: "MQ SoilM Sensor 4"
+    icon: "mdi:water-percent"
+    attenuation: 11db
+    update_interval: 2s
+    accuracy_decimals: 0

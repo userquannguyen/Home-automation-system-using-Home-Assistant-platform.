@@ -1,0 +1,76 @@
+esphome:
+  name: detect-esp-home
+
+esp8266:
+  board: nodemcuv2
+  framework: 
+    version: recommended
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "fJ5sTtjDdo4Go6/TI9zNumXZadpZyzxJYDrCaDI+OvY="
+
+ota:
+  password: "36c15049b289db2a2387bf0aa876bd6d"
+
+wifi:
+  ssid: 311 D6
+  password: 33555n@m
+  manual_ip:
+    static_ip: 172.16.10.111
+    gateway: 172.16.10.1
+    subnet: 255.255.255.0
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Detect-Esp-Home Fallback Hotspot"
+    password: "IfD9fg77yh1R"
+
+captive_portal:
+
+#PIR sensor
+binary_sensor:
+  - platform: gpio
+    pin: GPIO9
+    name: "PIR Sensor"
+    device_class: motion
+
+#DHT22 sensor
+sensor:
+  - platform: dht
+    pin: D6
+    temperature:
+      name: "Living Room Temperature"
+    humidity:
+      name: "Living Room Humidity"
+    update_interval: 5s
+
+
+light:
+  - platform: binary_sensor
+    name: "MQ Living Room Light"
+    output: light_output1
+
+  - platform: binary_sensor
+    name: "MQ Living Room Light"
+    output: light_output2
+
+  - platform: binary_sensor
+    name: "MQ Living Room Light"
+    output: light_output3
+
+output:
+  - id: light_output1
+    platform: gpio
+    pin: GPIO4
+  
+  - id: light_output2
+    platform: gpio
+    pin: GPIO5
+
+  - id: light_output3
+    platform: gpio
+    pin: GPIO6
