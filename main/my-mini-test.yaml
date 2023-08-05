@@ -15,8 +15,8 @@ ota:
   password: "8fe68fd3dc141298234f6520d871f47c"
 
 wifi:
-  ssid: MINH QUAN_2.4G
-  password: khongchoxaichua
+  ssid: MySSID
+  password: MyPsw
   #manual_ip:
    # static_ip: 172.20.10.100
    # gateway: 172.20.10.1
